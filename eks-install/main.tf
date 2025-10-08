@@ -1,4 +1,4 @@
-# 
+# Terraform main.tf, here we invoke modules and use it for running $terraform apply command
 terraform {
   required_providers {
     aws = {
