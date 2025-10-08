@@ -25,12 +25,13 @@ resource "aws_subnet" "private" {
   }
 }
 
+# Creating public subnet
 resource "aws_subnet" "public" {
   count             = length(var.public_subnet_cidrs)
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.public_subnet_cidrs[count.index]
   availability_zone = var.availability_zones[count.index]
-
+  # This require enabling to get public_ip for ec2 instance under public subnet
   map_public_ip_on_launch = true
 
   tags = {
@@ -40,6 +41,7 @@ resource "aws_subnet" "public" {
   }
 }
 
+# Creating Internet gateway 
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
@@ -48,6 +50,7 @@ resource "aws_internet_gateway" "main" {
   }
 }
 
+# Allocate Elastic IP addresses (EIPs) for NAT Gateways 
 resource "aws_eip" "nat" {
   count = length(var.public_subnet_cidrs)
   domain = "vpc"
@@ -57,6 +60,7 @@ resource "aws_eip" "nat" {
   }
 }
 
+# Creating Nat gateway
 resource "aws_nat_gateway" "main" {
   count         = length(var.public_subnet_cidrs)
   allocation_id = aws_eip.nat[count.index].id
@@ -67,6 +71,7 @@ resource "aws_nat_gateway" "main" {
   }
 }
 
+# Creating route table for public subnet
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
@@ -80,6 +85,7 @@ resource "aws_route_table" "public" {
   }
 }
 
+# Creating route table for private subnet
 resource "aws_route_table" "private" {
   count  = length(var.private_subnet_cidrs)
   vpc_id = aws_vpc.main.id
@@ -94,12 +100,14 @@ resource "aws_route_table" "private" {
   }
 }
 
+# Route table association to Private subnet
 resource "aws_route_table_association" "private" {
   count          = length(var.private_subnet_cidrs)
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private[count.index].id
 }
 
+# Route table association to Public subnet
 resource "aws_route_table_association" "public" {
   count          = length(var.public_subnet_cidrs)
   subnet_id      = aws_subnet.public[count.index].id
