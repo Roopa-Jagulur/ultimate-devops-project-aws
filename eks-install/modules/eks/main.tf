@@ -1,4 +1,4 @@
-# Create IAM_role for EKS cluster
+# Create IAM_role for control plane
 resource "aws_iam_role" "cluster" {
   name = "${var.cluster_name}-cluster-role"
 
@@ -14,11 +14,13 @@ resource "aws_iam_role" "cluster" {
   })
 }
 
+# Attach IAM_policy to the control plane IAM_role 
 resource "aws_iam_role_policy_attachment" "cluster_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
   role       = aws_iam_role.cluster.name
 }
 
+# Attach control plane IAM_role to the eks cluster
 resource "aws_eks_cluster" "main" {
   name     = var.cluster_name
   version  = var.cluster_version
@@ -28,11 +30,13 @@ resource "aws_eks_cluster" "main" {
     subnet_ids = var.subnet_ids
   }
 
+  # This means attach policy to the IAM_role and then create EKS cluster
   depends_on = [
     aws_iam_role_policy_attachment.cluster_policy
   ]
 }
 
+# Create IAM_role for data plane 
 resource "aws_iam_role" "node" {
   name = "${var.cluster_name}-node-role"
 
@@ -48,6 +52,7 @@ resource "aws_iam_role" "node" {
   })
 }
 
+# Attach IAM_policy to the data plane IAM_role 
 resource "aws_iam_role_policy_attachment" "node_policy" {
   for_each = toset([
     "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
@@ -59,6 +64,7 @@ resource "aws_iam_role_policy_attachment" "node_policy" {
   role       = aws_iam_role.node.name
 }
 
+# Attach control plane IAM_role to the Node group / data plane
 resource "aws_eks_node_group" "main" {
   for_each = var.node_groups
 
@@ -76,6 +82,7 @@ resource "aws_eks_node_group" "main" {
     min_size     = each.value.scaling_config.min_size
   }
 
+  # This means attach policy to the IAM_role and then create EKS cluster
   depends_on = [
     aws_iam_role_policy_attachment.node_policy
   ]
