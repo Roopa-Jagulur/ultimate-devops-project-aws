@@ -1,3 +1,4 @@
+# Declare all the variables here that you want to define them in eks/main.tf
 variable "cluster_name" {
   description = "Name of the EKS cluster"
   type        = string
