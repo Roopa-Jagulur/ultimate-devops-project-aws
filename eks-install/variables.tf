@@ -1,3 +1,4 @@
+# Declare all the variables and pass the values that need to be used in main.tf
 variable "region" {
   description = "AWS region"
   type        = string
