@@ -1,5 +1,5 @@
 # What Output I want to see when terraform apply execution is successfull (part of it is also updating statefile) 
-# the required below output displayed on output terminal. 
+# Looking at statefile, the required output stated below displayed on output terminal. 
 output "vpc_id" {
   description = "VPC ID"
   value       = aws_vpc.main.id
