@@ -1,3 +1,4 @@
+# 
 terraform {
   required_providers {
     aws = {
@@ -6,7 +7,8 @@ terraform {
     }
   }
 
-  backend "s3" {
+# S3 bucket already created using terraform under eks-install/backend/main.tf which created bucket on aws.
+backend "s3" {
     bucket         = "demo-terraform-eks-state-s3-bucket"
     key            = "terraform.tfstate"
     region         = "us-west-2"
@@ -19,6 +21,7 @@ provider "aws" {
   region = var.region
 }
 
+#Invoke vpc module which is under /eks-install/modules/vpc/main.tf
 module "vpc" {
   source = "./modules/vpc"
 
@@ -29,6 +32,7 @@ module "vpc" {
   cluster_name         = var.cluster_name
 }
 
+#Invoke eks module which is under /eks-install/modules/eks/main.tf
 module "eks" {
   source = "./modules/eks"
 
