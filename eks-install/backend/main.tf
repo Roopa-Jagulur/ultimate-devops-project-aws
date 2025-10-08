@@ -1,7 +1,9 @@
+# Cloud provider to tell terraform where to create resources
 provider "aws" {
   region = "us-west-2"
 }
 
+# Resource to tell which resource to create like S3, DynamoDB etc.,
 resource "aws_s3_bucket" "terraform_state" {
   bucket = "demo-terraform-eks-state-s3-bucket"
 
